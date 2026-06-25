@@ -157,9 +157,64 @@ def find_issue_lines(code_text):
 
 #Auto-Rewrite Issues
 
+def convert_inline_styles_to_classes(code_text):
+    style_rules = {}
+    class_counter = [0]
+
+    tag_pattern = re.compile(r"<([a-zA-Z][a-zA-Z0-9]*)([^<>]*)>")
+
+    def process_tag(match):
+        tag_name = match.group(1)
+        attrs_str = match.group(2)
+
+        self_closing = attrs_str.rstrip().endswith("/")
+        if self_closing:
+            attrs_str = attrs_str.rstrip()[:-1]
+
+        style_match = re.search(r'\s*style="([^"]*)"', attrs_str)
+        if not style_match:
+            return match.group(0)
+
+        style_content = style_match.group(1).strip().rstrip(";")
+        attrs_str = attrs_str[:style_match.start()] + attrs_str[style_match.end():]
+
+        if not style_content:
+            return f"<{tag_name}{attrs_str}{'/' if self_closing else ''}>"
+
+        if style_content in style_rules:
+            class_name = style_rules[style_content]
+        else:
+            class_counter[0] += 1
+            class_name = f"eco-fix-{class_counter[0]}"
+            style_rules[style_content] = class_name
+
+        class_match = re.search(r'\s*class="([^"]*)"', attrs_str)
+        if class_match:
+            existing = class_match.group(1)
+            updated = f"{existing} {class_name}".strip()
+            attrs_str = (attrs_str[:class_match.start()] +
+                         f' class="{updated}"' +
+                         attrs_str[class_match.end():])
+        else:
+            attrs_str = attrs_str + f' class="{class_name}"'
+
+        return f"<{tag_name}{attrs_str}{'/' if self_closing else ''}>"
+
+    fixed = tag_pattern.sub(process_tag, code_text)
+
+    if style_rules:
+        css_lines = "\n".join(f".{cls} {{ {css}; }}" for css, cls in style_rules.items())
+        style_block = f"<style>\n{css_lines}\n</style>\n"
+        if "<head>" in fixed:
+            fixed = fixed.replace("<head>", "<head>\n" + style_block, 1)
+        else:
+            fixed = style_block + fixed
+
+    return fixed
+
+
 def fix_code(code_text):
-    fixed = code_text
-    fixed = re.sub(r'\s+style="[^"]*"', '', fixed)
+    fixed = convert_inline_styles_to_classes(code_text)
 
     def add_size(match):
         tag = match.group(0)
@@ -557,12 +612,14 @@ def handle_fix():
     current_code = get_current_code()
     fixed_code = fix_code(current_code)
 
+    import difflib
     before_lines = current_code.split("\n")
     after_lines = fixed_code.split("\n")
+    matcher = difflib.SequenceMatcher(None, before_lines, after_lines)
     changed_line_numbers = []
-    for index, (before_line, after_line) in enumerate(zip(before_lines, after_lines), start=1):
-        if before_line != after_line:
-            changed_line_numbers.append(index)
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag != "equal":
+            changed_line_numbers.extend(range(j1 + 1, j2 + 1))
 
     if not changed_line_numbers:
         remaining_issues = analyze_code(current_code)
@@ -586,7 +643,7 @@ def handle_fix():
 
     fixed_parts = []
     if styles_removed > 0:
-        fixed_parts.append(f"{styles_removed} inline style(s) removed")
+        fixed_parts.append(f"{styles_removed} inline style(s) converted to CSS classes")
     if sizes_added > 0:
         fixed_parts.append(f"{sizes_added} image width/height attribute(s) added")
     if alts_added > 0:
@@ -621,9 +678,20 @@ def handle_fix():
         for part in unresolved_parts:
             print_to_terminal(f"- {part}")
     print_to_terminal("\nECO-SCORE")
-    print_to_terminal(f"File size reduced by: {kb_saved} KB")
-    print_to_terminal(f"Estimated energy saved: {energy_saved_wh} Wh")
-    print_to_terminal(f"Estimated CO2 reduction: {co2_saved_g} g")
+    if abs(kb_saved) < 0.01:
+        byte_diff = round((kb_saved) * 1024)
+        if byte_diff == 0:
+            print_to_terminal("File size: no meaningful change (styles were relocated, not removed).")
+        elif byte_diff > 0:
+            print_to_terminal(f"File size reduced by: {byte_diff} bytes")
+        else:
+            print_to_terminal(f"File size increased by: {abs(byte_diff)} bytes (attributes added)")
+    elif kb_saved > 0:
+        print_to_terminal(f"File size reduced by: {kb_saved} KB")
+        print_to_terminal(f"Estimated energy saved: {energy_saved_wh} Wh")
+        print_to_terminal(f"Estimated CO2 reduction: {co2_saved_g} g")
+    else:
+        print_to_terminal(f"File size increased by: {abs(kb_saved)} KB (missing attributes were added)")
     print_to_terminal("------------------------\n")
 
 tk.Button(button_frame, text="Analyze", font=("Consolas", 11, "bold"), width=14,
@@ -642,12 +710,14 @@ def handle_see_changes():
     changes_win.geometry("700x500")
     changes_win.configure(bg=LIGHT_GREEN)
 
+    import difflib
     before_lines = last_fix_before.split("\n")
     after_lines = last_fix_after.split("\n")
+    matcher = difflib.SequenceMatcher(None, before_lines, after_lines)
     changed_line_numbers = []
-    for index, (before_line, after_line) in enumerate(zip(before_lines, after_lines), start=1):
-        if before_line != after_line:
-            changed_line_numbers.append(index)
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag != "equal":
+            changed_line_numbers.extend(range(j1 + 1, j2 + 1))
 
     tk.Label(changes_win, text="Most Recent Change", fg=DARK_GREEN, bg=LIGHT_GREEN,
              font=("Consolas", 13, "bold")).pack(anchor="w", padx=10, pady=(10, 0))
