@@ -26,7 +26,7 @@ ERROR_RED = "#FF6B6B"
 #Editor Shell
 
 print("------")
-print("Welcome to EcoCompiler! ˚˖𓍢ִ໋`🌿:✧˚")
+print("Welcome to EcoCompiler!")
 print("Type/paste your HTML code below, line by line")
 print("Type 'analyze' on its own line to check your code's score.")
 print("Type 'reset' to clear your code and start over.")
@@ -79,7 +79,8 @@ def score_to_grade(score):
 #Carbon Meter Bar
 
 def generate_meter_bar(score):
-    filled_blocks = int(score / 5)   # score out of 100, bar has 20 total blocks
+    filled_blocks = int(score / 5)   
+    # score out of 100, bar has 20 total blocks
     empty_blocks = 20 - filled_blocks
     bar = "#" * filled_blocks + "-" * empty_blocks
     return f"[{bar}] {score}%"
@@ -102,10 +103,10 @@ def real_world_comparison(score):
 
 issue_explanations = {
     "images_no_size": "image(s) are missing width/height, which can slow down page loading",
-    "inline_styles": "inline style attribute(s) found — external CSS is cleaner and more efficient",
+    "inline_styles": "inline style attribute(s) found, external CSS is cleaner and more efficient",
     "missing_alt": "image(s) are missing an alt attribute, which also hurts accessibility",
-    "autoplay_media": "autoplay media detected — this wastes energy by playing automatically",
-    "div_count": "a high number of <div> tags detected — try simplifying your layout",
+    "autoplay_media": "autoplay media detected, this wastes energy by playing automatically",
+    "div_count": "a high number of <div> tags detected, try simplifying your layout",
     "file_size_kb": "your file size is adding to the overall energy cost"
 }
 
@@ -184,7 +185,7 @@ def calculate_eco_score(before_code, after_code):
     after_kb = len(after_code.encode("utf-8")) / 1024
     kb_saved = round(before_kb - after_kb, 2)
 
-    # Rough illustrative estimates for demo purposes, not precise scientific figures
+    # Rough illustrative estimates for demo purposes, not scientifically precise
     energy_saved_wh = round(kb_saved * 0.0072, 4)
     co2_saved_g = round(kb_saved * 0.03, 4)
 
@@ -239,8 +240,8 @@ root.configure(bg=LIGHT_GREEN)
 home_frame = tk.Frame(root, bg=LIGHT_GREEN)
 home_frame.pack(fill="both", expand=True)
 
-tk.Label(home_frame, text="EcoCompiler! ˚˖𓍢ִ໋`🌿:✧", fg=DARK_GREEN, bg=LIGHT_GREEN, font=("Consolas", 28, "bold")).pack(pady=(0,40))
-tk.Label(home_frame, text="The Clean-Code Editor", fg=DARK_GREEN, bg=LIGHT_GREEN, font=("Consolas", 14)).pack(pady=(0, 40))
+tk.Label(home_frame, text="EcoCompiler!", fg=DARK_GREEN, bg=LIGHT_GREEN, font=("Consolas", 28, "bold")).pack(pady=(0,40))
+tk.Label(home_frame, text="The Eco-Friendly Code Editor", fg=DARK_GREEN, bg=LIGHT_GREEN, font=("Consolas", 14)).pack(pady=(0, 40))
 
 def open_code_page():
     home_frame.pack_forget()
@@ -278,33 +279,42 @@ tk.Button(instructions_frame, text="< Go Back", font=("Consolas", 10, "bold"),
 
 instructions_text = (
     "HOW TO USE ECOCOMPILER\n\n"
-    "Write your code using HTML — this is the only language\n"
+    "Write your code using HTML. This is the only language\n"
     "EcoCompiler currently reads and analyzes.\n\n"
+
     "BUTTONS:\n"
-    "Analyze - scans your current code and shows a Carbon Meter,\n"
+    "Analyze: scans your current code and shows a Carbon Meter,\n"
     "grade, real-world energy comparison, and specific issues found,\n"
     "including which line numbers to look at (highlighted in red).\n\n"
-    "Fix My Code - automatically rewrites common issues for you,\n"
+
+    "Fix My Code: automatically rewrites common issues for you,\n"
     "such as removing inline styles and adding missing image\n"
     "width/height/alt attributes. Also shows your Eco-Score —\n"
     "how much file size, energy, and CO2 were saved by the fix.\n\n"
-    "See Changes - shows a before/after comparison of your code,\n"
+
+    "See Changes: shows a before and after comparison of your code,\n"
     "with the specific lines that changed highlighted in red (before)\n"
     "and green (after).\n\n"
-    "Select Folder - choose the folder where your project's image\n"
-    "files live, so Run Code can find them correctly.\n\n"
-    "Run Code - opens your current HTML in your default browser\n"
+
+    "Select Folder: choose the folder where your project's image\n"
+    "files are, so Run Code can find them correctly.\n\n"
+
+    "Run Code: opens your current HTML in your default browser\n"
     "so you can check it still works after making changes.\n\n"
-    "Session Report - shows your best, latest, and average score\n"
+
+    "Session Report:  shows your best, latest, and average score\n"
     "across every analysis you've run this session, plus your\n"
     "current Eco Coder Level.\n\n"
-    "Reset - clears the editor back to the starter code.\n\n"
+
+    "Reset: clears the editor back to the starter code.\n\n"
+
     "LEVELING UP:\n"
     "Every time you click Analyze and score 75 or higher, it counts\n"
     "as a clean run.\n"
     "Level 1: starting level\n"
     "Level 2: reach 3 clean runs\n"
     "Level 3: reach 5 clean runs\n"
+    "And so on!"
 )
 
 tk.Label(instructions_frame, text=instructions_text, fg=DARK_GREEN, bg=LIGHT_GREEN,
@@ -332,15 +342,15 @@ about_text = (
     "and autoplay media all increase file size and processing load,\n"
     "which increases the energy a server and a user's device must\n"
     "spend to load the page.\n\n"
-    "At a small scale, one webpage's extra energy use seems tiny.\n"
+    "To some, one webpage's extra energy use seems small.\n"
     "But websites are visited millions of times, and servers run\n"
     "constantly worldwide, so small inefficiencies add up into a\n"
-    "meaningful amount of unnecessary electricity use and carbon\n"
-    "emissions across the internet as a whole.\n\n"
-    "Writing 'clean code' — code that avoids unnecessary bloat,\n"
-    "properly sized images, and efficient styling — is a small,\n"
+    "significant amount of unnecessary electricity use and carbon\n"
+    "emissions across the entire internet.\n\n"
+    "Writing 'clean code'- code that avoids unnecessary bloat,\n"
+    "properly sized images, and efficient styling- is a small,\n"
     "practical way developers can reduce that impact, one webpage\n"
-    "at a time.\n"
+    "at a time!!\n"
 )
 
 tk.Label(about_frame, text=about_text, fg=DARK_GREEN, bg=LIGHT_GREEN,
@@ -527,7 +537,7 @@ def handle_analyze():
     grade = score_to_grade(score)
     update_session_stats(score)
 
-    print_to_terminal("--- ANALYSIS RESULT ---")
+    print_to_terminal("ANALYSIS RESULT")
     print_to_terminal(f"Carbon Meter: {generate_meter_bar(score)}")
     print_to_terminal(f"Grade: {grade}")
     print_to_terminal(real_world_comparison(score))
@@ -559,7 +569,7 @@ def handle_fix():
         remaining_issues = analyze_code(current_code)
         has_other_issues = (remaining_issues["autoplay_media"] > 0 or remaining_issues["div_count"] > 15)
 
-        print_to_terminal("--- FIX MY CODE ---")
+        print_to_terminal("FIX MY CODE")
         if has_other_issues:
             print_to_terminal("No auto-fixable issues found (inline styles, image sizes/alt are already clean).")
             print_to_terminal("However, other issues remain that need manual fixing — click Analyze to see them.")
@@ -604,14 +614,14 @@ def handle_fix():
 
     kb_saved, energy_saved_wh, co2_saved_g = calculate_eco_score(current_code, fixed_code)
 
-    print_to_terminal("--- CODE FIXED ---")
+    print_to_terminal("CODE FIXED")
     print_to_terminal(last_fix_message + ".")
     print_to_terminal(f"{len(changed_line_numbers)} line(s) updated — shown in green.")
     if unresolved_parts:
         print_to_terminal("\nStill needs manual attention:")
         for part in unresolved_parts:
             print_to_terminal(f"- {part}")
-    print_to_terminal("\n--- ECO-SCORE ---")
+    print_to_terminal("\nECO-SCORE")
     print_to_terminal(f"File size reduced by: {kb_saved} KB")
     print_to_terminal(f"Estimated energy saved: {energy_saved_wh} Wh")
     print_to_terminal(f"Estimated CO2 reduction: {co2_saved_g} g")
@@ -685,11 +695,11 @@ def handle_run():
         with open(temp_path, "w", encoding="utf-8") as f:
             f.write(current_code)
         webbrowser.open("file://" + temp_path)
-        print_to_terminal("--- RUNNING CODE ---")
+        print_to_terminal("RUNNING CODE")
         print_to_terminal(f"Opened your HTML in your default browser.")
         print_to_terminal(f"Preview saved in: {target_dir}")
         if not project_folder:
-            print_to_terminal("(No folder selected — using the script's current folder.")
+            print_to_terminal("(No folder selected... using the script's current folder.")
             print_to_terminal(" Click 'Select Folder' to point to your image files instead.)")
         print_to_terminal("------------------------\n")
     except Exception as e:
@@ -708,13 +718,13 @@ def handle_report():
     average_score = round(sum(session_history) / len(session_history))
     level = get_current_level()
 
-    print_to_terminal("========== SUSTAINABILITY REPORT ==========")
+    print_to_terminal("-> SUSTAINABILITY REPORT <-")
     print_to_terminal(f"Total analyses run this session: {len(session_history)}")
     print_to_terminal(f"Best score achieved: {best_score}/100")
     print_to_terminal(f"Latest score: {latest_score}/100 (Grade: {score_to_grade(latest_score)})")
     print_to_terminal(f"Average score: {average_score}/100")
     print_to_terminal(f"Current Eco Coder Level: {level}")
-    print_to_terminal("=============================================\n")
+    print_to_terminal("--------------------------------------\n")
 
 tk.Button(button_frame, text="Session Report", font=("Consolas", 11, "bold"), width=14,
           bg=MED_GREEN, fg=TEXT_DARK, command=handle_report).pack(side="left", padx=5)
