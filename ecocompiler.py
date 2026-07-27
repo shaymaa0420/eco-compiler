@@ -487,6 +487,7 @@ code_editor.tag_config("fixed_line", foreground="#4CAF50")
 
 last_fix_before = ""
 last_fix_after = ""
+last_fix_message = ""
 
 def update_line_numbers(event=None):
     total_lines = code_editor.get("1.0", "end-1c").count("\n") + 1
@@ -543,18 +544,9 @@ def handle_analyze():
     print_to_terminal("------------------------\n")
 
 def handle_fix():
-    global last_fix_before, last_fix_after
+    global last_fix_before, last_fix_after, last_fix_message
     current_code = get_current_code()
     fixed_code = fix_code(current_code)
-
-    last_fix_before = current_code
-    last_fix_after = fixed_code
-
-    code_editor.delete("1.0", "end")
-    code_editor.insert("1.0", fixed_code)
-    update_line_numbers()
-    code_editor.tag_remove("error_line", "1.0", "end")
-    code_editor.tag_remove("fixed_line", "1.0", "end")
 
     before_lines = current_code.split("\n")
     after_lines = fixed_code.split("\n")
@@ -563,14 +555,62 @@ def handle_fix():
         if before_line != after_line:
             changed_line_numbers.append(index)
 
+    if not changed_line_numbers:
+        remaining_issues = analyze_code(current_code)
+        has_other_issues = (remaining_issues["autoplay_media"] > 0 or remaining_issues["div_count"] > 15)
+
+        print_to_terminal("--- FIX MY CODE ---")
+        if has_other_issues:
+            print_to_terminal("No auto-fixable issues found (inline styles, image sizes/alt are already clean).")
+            print_to_terminal("However, other issues remain that need manual fixing — click Analyze to see them.")
+        else:
+            print_to_terminal("No fixable issues found — your code is already clean!")
+        print_to_terminal("------------------------\n")
+        return
+
+    before_issues = analyze_code(current_code)
+    after_issues = analyze_code(fixed_code)
+
+    styles_removed = before_issues["inline_styles"] - after_issues["inline_styles"]
+    sizes_added = before_issues["images_no_size"] - after_issues["images_no_size"]
+    alts_added = before_issues["missing_alt"] - after_issues["missing_alt"]
+
+    fixed_parts = []
+    if styles_removed > 0:
+        fixed_parts.append(f"{styles_removed} inline style(s) removed")
+    if sizes_added > 0:
+        fixed_parts.append(f"{sizes_added} image width/height attribute(s) added")
+    if alts_added > 0:
+        fixed_parts.append(f"{alts_added} image alt attribute(s) added")
+
+    unresolved_parts = []
+    if after_issues["autoplay_media"] > 0:
+        unresolved_parts.append(f"{after_issues['autoplay_media']} autoplay media tag(s) — not auto-fixable, remove manually")
+    if after_issues["div_count"] > 15:
+        unresolved_parts.append(f"{after_issues['div_count']} nested <div> tags — not auto-fixable, simplify layout manually")
+
+    last_fix_before = current_code
+    last_fix_after = fixed_code
+    last_fix_message = "; ".join(fixed_parts) if fixed_parts else "Minor formatting adjustments made"
+
+    code_editor.delete("1.0", "end")
+    code_editor.insert("1.0", fixed_code)
+    update_line_numbers()
+    code_editor.tag_remove("error_line", "1.0", "end")
+    code_editor.tag_remove("fixed_line", "1.0", "end")
+
     for line_num in changed_line_numbers:
         code_editor.tag_add("fixed_line", f"{line_num}.0", f"{line_num}.end")
 
     kb_saved, energy_saved_wh, co2_saved_g = calculate_eco_score(current_code, fixed_code)
 
     print_to_terminal("--- CODE FIXED ---")
-    print_to_terminal("Inline styles removed, missing image attributes added.")
+    print_to_terminal(last_fix_message + ".")
     print_to_terminal(f"{len(changed_line_numbers)} line(s) updated — shown in green.")
+    if unresolved_parts:
+        print_to_terminal("\nStill needs manual attention:")
+        for part in unresolved_parts:
+            print_to_terminal(f"- {part}")
     print_to_terminal("\n--- ECO-SCORE ---")
     print_to_terminal(f"File size reduced by: {kb_saved} KB")
     print_to_terminal(f"Estimated energy saved: {energy_saved_wh} Wh")
@@ -623,7 +663,7 @@ def handle_see_changes():
         after_box.tag_add("changed_after", f"{line_num}.0", f"{line_num}.end")
     after_box.config(state="disabled")
 
-    tk.Label(changes_win, text="Inline styles removed, missing image attributes added.",
+    tk.Label(changes_win, text=last_fix_message + ".",
              fg=DARK_GREEN, bg=LIGHT_GREEN, font=("Consolas", 10, "italic")).pack(pady=10)
 
     tk.Button(changes_win, text="Close", bg=MED_GREEN, fg=TEXT_DARK,
@@ -680,11 +720,34 @@ tk.Button(button_frame, text="Session Report", font=("Consolas", 11, "bold"), wi
           bg=MED_GREEN, fg=TEXT_DARK, command=handle_report).pack(side="left", padx=5)
 
 def handle_reset():
-    code_editor.delete("1.0", "end")
-    code_editor.insert("1.0", starter_code)
-    update_line_numbers()
-    code_editor.tag_remove("error_line", "1.0", "end")
-    print_to_terminal("Code editor has been reset.\n")
+    if current_open_file:
+        confirmed = messagebox.askyesno(
+            "Reset File?",
+            f"This will reload '{os.path.basename(current_open_file)}' back to its "
+            "last saved version on disk, discarding any unsaved changes in the editor.\n\n"
+            "Continue?"
+        )
+        if not confirmed:
+            print_to_terminal("Reset cancelled.\n")
+            return
+        try:
+            with open(current_open_file, "r", encoding="utf-8") as f:
+                content = f.read()
+            code_editor.delete("1.0", "end")
+            code_editor.insert("1.0", content)
+            update_line_numbers()
+            code_editor.tag_remove("error_line", "1.0", "end")
+            code_editor.tag_remove("fixed_line", "1.0", "end")
+            print_to_terminal(f"Reloaded '{os.path.basename(current_open_file)}' from disk.\n")
+        except Exception as e:
+            print_to_terminal(f"Could not reload file: {e}\n")
+    else:
+        code_editor.delete("1.0", "end")
+        code_editor.insert("1.0", starter_code)
+        update_line_numbers()
+        code_editor.tag_remove("error_line", "1.0", "end")
+        code_editor.tag_remove("fixed_line", "1.0", "end")
+        print_to_terminal("Code editor has been reset.\n")
 
 tk.Button(button_frame, text="Reset", font=("Consolas", 11, "bold"), width=14,
           bg=MED_GREEN, fg=TEXT_DARK, command=handle_reset).pack(side="left", padx=5)

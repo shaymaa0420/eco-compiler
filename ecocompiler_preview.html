@@ -1,117 +1,64 @@
-<html>
 <!DOCTYPE html>
-    <style>
-        body {
-            background-color: rgb(157, 245, 255)
-        }
-        .titlewelcome {
-            font-size: 30px;
-            color: rgb(239, 150, 186);
-            text-align: center;
-        }
-        .btn {
-            background-color: rgb(255, 189, 215);
-            color: rgb(9, 174, 172);
-            font-size: 15px;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 50px;
-            margin-top: 30px;
-        }
-        .btn:hover {
-            background-color: rgb(225, 161, 187);
-        }
-        .rectangle {
-            width: 30px;
-            height: 400px;
-            background-color: rgb(240, 127, 172);
-            margin-top: 0px;
-        }
-        .content-container {
-            display: flex;
-            gap: 30px;
-            margin-top: 30px;
-        }
-        .homesquare {
-            width: 500px;
-            height: 500px;
-            height: auto;
-            background-color: rgb(255, 189, 215);
-            padding: 0;
-            display: flex;
-            flex-direction: column; 
-            text-align: center;
-            color: rgb(9, 174, 172);
-            overflow: hidden;
-        }
-        .lace-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            margin-bottom: 20px;
-        }
-        .tealpinkstripes-image {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            margin-top: 20px;
-        }
-        .sidebar {
-            width: 200px;
-            height: 400px;
-            background-color: rgb(240, 127, 172);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 30px;
-        }
-        .sidebar .btn {
-            margin-bottom: 20px;
-            width: 120px;
-        }
-        .stars-image {
-            width: 150px;
-            margin-top: 30px;
-        }
-        .cake-image {
-            width: 400px;
-            height: 500px;
-            object-fit: cover;
-        }
-    </style>
+<html>
+<head>
+    <title>Messy Test Page</title>
+</head>
+<body>
 
-    <head>
-        <Title> Shaymaa Mourchid </Title>
-    </head>
+    <h1>Testing All The Issues!</h1>
 
-    <body>
-        <h1 align="center" class="titlewelcome"> <b> Shaymaa's Site </b> </h1>
-        <p align="center" class="titlewelcome"> <b> Personal website for Shaymaa M. </b> </p>
-        <br>
-    <div class="button-container">
-        <div class="sidebar">
-            <button class="btn" onclick="location.href='index.html';">Home</button>
-            <button class="btn" onclick="location.href='aboutme.html';">About Me</button>
-            <button class="btn" onclick="location.href='projects.html';">Projects</button>
-            
-            <img src="tealpinkstars.webp" class="stars-image" width="200" height="200" alt="description">
+    <!-- Missing width/height AND missing alt attribute -->
+    <img src="photo1.jpg" width="200" height="200" alt="description">
+
+    <!-- Missing width/height, has alt -->
+    <img src="photo2.jpg" alt="a photo" width="200" height="200">
+
+    <!-- Has width/height, missing alt -->
+    <img src="photo3.jpg" width="200" height="200" alt="description">
+
+    <!-- Autoplay media -->
+    <video src="video1.mp4" autoplay></video>
+    <audio src="sound1.mp3" autoplay></audio>
+
+    <!-- Lots of inline styles -->
+    <p>This paragraph has an inline style.</p>
+    <p>So does this one.</p>
+    <p>And this one too.</p>
+
+    <!-- Excessive divs (more than 15) to trigger "div soup" -->
+    <div>
+        <div>
+            <div>
+                <div>
+                    <div>
+                        <div>
+                            <div>
+                                <div>
+                                    <div>
+                                        <div>
+                                            <div>
+                                                <div>
+                                                    <div>
+                                                        <div>
+                                                            <div>
+                                                                <div>
+                                                                    <p>Way too many nested divs!</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="homesquare">
-            <img src="teallace.png" class="lace-image" width="200" height="200" alt="description">
-            <h2>Welcome to my website!!</h2>
-            <p>This is my homepage. It's nice to meet you! My name is Shaymaa and I really love coding ^^ </p>
-            <img src="tealpinkstripes.webp" class="tealpinkstripes-image" width="200" height="200" alt="description">
-        </div>
-
-        <img src="tealpinkcake.webp" class ="cake-image" width="200" height="200" alt="description">
     </div>
-    </body>
+
+</body>
 </html>
