@@ -231,7 +231,7 @@ def generate_session_report():
 root = tk.Tk()
 root.title("EcoCompiler - The Clean Code Editor!")
 root.geometry("1000x750")
-root.resizable(False, False)
+root.resizable(True, True)
 root.configure(bg=LIGHT_GREEN)
 
 #Home Screen
