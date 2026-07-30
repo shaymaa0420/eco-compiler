@@ -1,6 +1,5 @@
-#EcoCompiler - The clean code editor!
+#Eco-Compiler: The clean code editor!
 #Designed for HTML code.
-# ˚˖𓍢ִ໋`🌿:✧˚
 #By Shaymaa Mourchid.
 
 import tkinter as tk
@@ -730,27 +729,29 @@ tk.Button(button_frame, text="Session Report", font=("Consolas", 11, "bold"), wi
           bg=MED_GREEN, fg=TEXT_DARK, command=handle_report).pack(side="left", padx=5)
 
 def handle_reset():
+    global current_open_file
     if current_open_file:
         confirmed = messagebox.askyesno(
-            "Reset File?",
-            f"This will reload '{os.path.basename(current_open_file)}' back to its "
-            "last saved version on disk, discarding any unsaved changes in the editor.\n\n"
-            "Continue?"
+            "Close File?",
+            f"This will close '{os.path.basename(current_open_file)}',"
+            " and return you to the default EcoCompiler template.\n\n"
+            "Your file on disk will NOT be modified. Continue?"
         )
         if not confirmed:
             print_to_terminal("Reset cancelled.\n")
             return
-        try:
-            with open(current_open_file, "r", encoding="utf-8") as f:
-                content = f.read()
-            code_editor.delete("1.0", "end")
-            code_editor.insert("1.0", content)
-            update_line_numbers()
-            code_editor.tag_remove("error_line", "1.0", "end")
-            code_editor.tag_remove("fixed_line", "1.0", "end")
-            print_to_terminal(f"Reloaded '{os.path.basename(current_open_file)}' from disk.\n")
-        except Exception as e:
-            print_to_terminal(f"Could not reload file: {e}\n")
+
+        current_open_file = None
+        code_editor.delete("1.0", "end")
+        code_editor.insert("1.0", starter_code)
+        update_line_numbers()
+        code_editor.tag_remove("error_line", "1.0", "end")
+        code_editor.tag_remove("fixed_line", "1.0", "end")
+
+        for widget in tabs_frame.winfo_children():
+            widget.destroy()
+
+        print_to_terminal("File closed. Your file on disk was not changed. Back to default template.\n")
     else:
         code_editor.delete("1.0", "end")
         code_editor.insert("1.0", starter_code)
