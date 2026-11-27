@@ -6,6 +6,8 @@ Created by Shaymaa Mourchid.
 
 EcoCompiler is a desktop HTML editor that helps you spot common code issues, make simple fixes, and explore more thoughtful coding habits.
 
+Selected as a featured project for the [Girls in CS 2026 Showcase.](https://girlsincs.com/showcase) 
+
 Write or paste your HTML, check its score, review suggested improvements, and preview your page in a browser—all from one app.
 
 > EcoCompiler is a learning tool, not a scientific carbon calculator. Its scores, energy comparisons, and CO₂ estimates are simplified examples, not measurements of a website’s actual environmental impact.
